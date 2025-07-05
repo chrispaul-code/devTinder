@@ -3,7 +3,27 @@
 const express = require('express');
 const app = express();
 
+require("./config/database.js")
+
 const {adminAuth , userAuth} =require("./middlewares/auth.js")
+
+//Error Handling ->try,catch and err in express
+
+app.get("/getUserData",(req,res)=>{
+try{
+    // throw new Error("error in the code")
+    res.send("get all user data ")
+}catch(err){
+    res.status(500).send(`${err} contact support team`)
+}
+
+})
+
+app.use("/",(err,req,res,next)=>{
+    if(err){
+        res.status(500).send("something went wrong")
+    }
+})
 
 //Middleware -> adminAuth , userAuth acts as a middleware 
 
