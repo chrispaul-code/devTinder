@@ -3,19 +3,23 @@
 const express = require('express');
 const app = express();
 
-app.get("/user/:id",(req,res)=>{
-    console.log(req.params)
-    res.send("hello world")
+const {adminAuth , userAuth} =require("./middlewares/auth.js")
+
+//Middleware -> adminAuth , userAuth acts as a middleware 
+
+app.use("/admin/:id",adminAuth);
+
+app.get("/user/:id",userAuth,(req,res)=>{
+    res.send("i AM USER")
 })
 
-app.get("/abc" , (req,res)=>{
-    res.send({name:"Christeen Paul"});
+app.get("/admin/:id/getAllData",(req,res)=>{
+    res.send("Hello world ")
 })
 
-app.use("/hel",(req,res)=>{
-  res.send("world hello world")
+app.get("/admin/:id/getData",(req,res)=>{
+    res.send("world ")
 })
-
 
 app.listen(3000,()=>{
     console.log("App listing to port 3000")
