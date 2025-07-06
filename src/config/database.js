@@ -7,8 +7,4 @@ const connectDB=async()=>{
 };
 
 
-connectDB().then(()=>{
-    console.log("Databse connected successfully")
-}).catch((err)=>{
-    console.log("Databse Cannot be Connected")
-})
+module.exports= connectDB;

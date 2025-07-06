@@ -1,46 +1,34 @@
-//Creating a Servwr 
-
 const express = require('express');
 const app = express();
+const connectDB= require("./config/database.js")
+const User=require("./models/user.js")
 
-require("./config/database.js")
+app.use(express.json());
 
-const {adminAuth , userAuth} =require("./middlewares/auth.js")
+app.post('/signup',async(req,res)=>{
+    const user = new User(req.body)
 
-//Error Handling ->try,catch and err in express
+     try{
+       await user.save();
+       res.send("User Added Syccessfully!")
+     }catch(err){
+        res.status(400).send("Error Saving The User:"+ err.message);
+     }
 
-app.get("/getUserData",(req,res)=>{
-try{
-    // throw new Error("error in the code")
-    res.send("get all user data ")
-}catch(err){
-    res.status(500).send(`${err} contact support team`)
-}
 
 })
 
-app.use("/",(err,req,res,next)=>{
-    if(err){
-        res.status(500).send("something went wrong")
-    }
-})
-
-//Middleware -> adminAuth , userAuth acts as a middleware 
-
-app.use("/admin/:id",adminAuth);
-
-app.get("/user/:id",userAuth,(req,res)=>{
-    res.send("i AM USER")
-})
-
-app.get("/admin/:id/getAllData",(req,res)=>{
-    res.send("Hello world ")
-})
-
-app.get("/admin/:id/getData",(req,res)=>{
-    res.send("world ")
-})
-
-app.listen(3000,()=>{
+connectDB()
+  .then(()=>{
+    console.log("Databse connected successfully");
+    app.listen(3000,()=>{
     console.log("App listing to port 3000")
-})
+   });
+  })
+  .catch((err)=>{
+    console.log("Databse Cannot be Connected")
+  })
+
+
+
+
