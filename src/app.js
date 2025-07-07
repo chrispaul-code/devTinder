@@ -2,24 +2,60 @@ const express = require('express');
 const app = express();
 const connectDB= require("./config/database.js")
 const User=require("./models/user.js");
+const { validateSignup }=require("./utils/validateInfo.js");
+const bcrypt = require('bcrypt');
+
 
 
 app.use(express.json());
 
 app.post('/signup',async(req,res)=>{
-    const user = new User(req.body)
 
      try{
+      validateSignup(req);
+
+      const {firstName,lastName,emailId,password}=req.body;
+
+      const passwordHash=await bcrypt.hash(password, 10);
+
+          const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password:passwordHash,
+        });
+
        await user.save();
        res.send("User Added Syccessfully!")
      }catch(err){
-        res.status(400).send("Error Saving The User:"+ err.message);
+        res.status(400).send("ERROR:"+ err.message);
      }
 
 
 })
 
-app.post('/user', async(req,res)=>{
+app.post('/login',async(req,res)=>{
+   try{
+      const {emailId,password}=req.body
+      const user = await User.findOne({emailId:emailId});
+      if(!user){
+         throw new Error("Invalid credentials!!");
+      }
+
+      const validPassword=await bcrypt.compare(password,user.password)
+      if(validPassword){
+         res.send("Login Successful!!");
+      }else{
+         throw new Error("Invalid credentials!!");
+      }
+
+   }catch(err){
+    res.status(404).send("ERROR:"+ err)
+   }
+})
+
+
+app.get('/user', async(req,res)=>{
    const user= req.body.emailId;
    try{
     const getuser=await User.find({emailId:user})
@@ -33,7 +69,7 @@ app.post('/user', async(req,res)=>{
    }
 })
 
-app.post('/feed', async(req,res)=>{
+app.get('/feed', async(req,res)=>{
 
    try{
      const getuser=await User.find({})
@@ -47,6 +83,44 @@ app.post('/feed', async(req,res)=>{
    }
 })
 
+app.delete('/user',async(req,res)=>{
+    const deluser=req.body.userId
+
+    try{
+       const user=await User.findByIdAndDelete(deluser)
+       res.send("User Dleted Succesfully")
+    }catch(err){
+        res.status(404).send("Sometinf went wrong")
+    }
+})
+
+app.patch('/user/:id',async(req,res)=>{
+   const upId=req.params.id;
+   const data=req.body;
+
+try{
+   const ALLOWED_UPDATES=[
+      "photoUrl",
+      "gender",
+      "firstName",
+      "lastName"
+   ]
+
+   const isUpdateAllowed=Object.keys(data).every((k)=>{
+      ALLOWED_UPDATES.includes(k)
+   })
+   if(isUpdateAllowed){
+      throw new Error("Updare not allowed")
+   }
+
+    const user=await User.findByIdAndUpdate(upId,data,{returnDocument:"before",runValidators:true})
+    console.log(user);
+    res.send("User Upadated Succesfully")
+}catch(err){
+    res.status(404).send("Someting went wrong"+ err)
+ }
+})
+
 connectDB()
   .then(()=>{
     console.log("Databse connected successfully");
@@ -55,7 +129,7 @@ connectDB()
    });
   })
   .catch((err)=>{
-    console.log("Databse Cannot be Connected")
+    console.log("Databse Cannot be Connected"+err)
   })
 
 
