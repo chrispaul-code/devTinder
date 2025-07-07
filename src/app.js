@@ -4,10 +4,13 @@ const connectDB= require("./config/database.js")
 const User=require("./models/user.js");
 const { validateSignup }=require("./utils/validateInfo.js");
 const bcrypt = require('bcrypt');
+const cookieParser=require("cookie-parser");
+const jwt = require('jsonwebtoken');
 
 
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post('/signup',async(req,res)=>{
 
@@ -43,8 +46,14 @@ app.post('/login',async(req,res)=>{
       }
 
       const validPassword=await bcrypt.compare(password,user.password)
+
       if(validPassword){
-         res.send("Login Successful!!");
+       //Create a JWT token
+
+       const token =await jwt.sign({_id:user._id},"CHRIS$1311");
+       console.log(token)
+       res.cookie("Token",token)
+       res.send("Login Successful!!");
       }else{
          throw new Error("Invalid credentials!!");
       }
@@ -52,6 +61,37 @@ app.post('/login',async(req,res)=>{
    }catch(err){
     res.status(404).send("ERROR:"+ err)
    }
+})
+
+app.get('/profile',async(req,res)=>{
+ try{
+    const cookie=req.cookies;
+   const{Token}=cookie;
+
+   if(!Token){
+      throw new Error("Invalid Token")
+   }
+
+
+   const decodedMessage= await jwt.verify(Token,"CHRIS$1311")
+
+   const {_id}=decodedMessage;
+   console.log("Logged In user is :"+_id)
+
+   const user=await User.findById(_id);
+
+   if(!user){
+      throw new Error("User Does not Exist")
+   }
+
+   res.send(user);
+
+
+ }catch(err){
+    res.status(404).send("ERROR:"+ err)
+   }
+
+  
 })
 
 
