@@ -6,6 +6,7 @@ const { validateSignup }=require("./utils/validateInfo.js");
 const bcrypt = require('bcrypt');
 const cookieParser=require("cookie-parser");
 const jwt = require('jsonwebtoken');
+const {userAuth}=require("./middlewares/auth.js")
 
 
 
@@ -50,9 +51,9 @@ app.post('/login',async(req,res)=>{
       if(validPassword){
        //Create a JWT token
 
-       const token =await jwt.sign({_id:user._id},"CHRIS$1311");
+       const token =await jwt.sign({_id:user._id},"CHRIS$1311",{expiresIn:"1d"});
        console.log(token)
-       res.cookie("Token",token)
+       res.cookie("Token",token, { expires: new Date(Date.now() + 900000), httpOnly: true })
        res.send("Login Successful!!");
       }else{
          throw new Error("Invalid credentials!!");
@@ -63,22 +64,9 @@ app.post('/login',async(req,res)=>{
    }
 })
 
-app.get('/profile',async(req,res)=>{
+app.get('/profile',userAuth,async(req,res)=>{
  try{
-    const cookie=req.cookies;
-   const{Token}=cookie;
-
-   if(!Token){
-      throw new Error("Invalid Token")
-   }
-
-
-   const decodedMessage= await jwt.verify(Token,"CHRIS$1311")
-
-   const {_id}=decodedMessage;
-   console.log("Logged In user is :"+_id)
-
-   const user=await User.findById(_id);
+   const user=req.user;
 
    if(!user){
       throw new Error("User Does not Exist")
@@ -86,14 +74,16 @@ app.get('/profile',async(req,res)=>{
 
    res.send(user);
 
-
  }catch(err){
     res.status(404).send("ERROR:"+ err)
    }
 
-  
 })
 
+app.post("/sendConnectionRequest",userAuth,async(req,res)=>{
+   const user=req.user
+    res.send("Coonection Request Send By :"+ user.firstName)
+})
 
 app.get('/user', async(req,res)=>{
    const user= req.body.emailId;
