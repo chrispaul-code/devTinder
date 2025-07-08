@@ -43,11 +43,15 @@ const userSchema= new mongoose.Schema({
     },
     gender:{
         type:String,
-        validate(value){
-        if(!["male","female","others"].includes(value)){
-            throw new Error("Gender data is not valid");
-          }
+        enum:{
+            values:["male", "flemale","other"],
+            message:`{VALUE} id not a valid gender type`
         }
+        // validate(value){
+        // if(!["male","female","others"].includes(value)){
+        //     throw new Error("Gender data is not valid");
+        //   }
+        // }
     },
     photoUrl:{
         type:String,
@@ -57,6 +61,13 @@ const userSchema= new mongoose.Schema({
                 throw new Error("Invalid URL:" + value)
             }
         }
+    },
+    skills:{
+        type:[String],
+    },
+    about:{
+      type:String,
+      default:"This is a default about of the user !"
     }
 
 },{timestamps:true})

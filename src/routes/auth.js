@@ -48,8 +48,8 @@ authRouter.post('/login',async(req,res)=>{
        const token=await user.getJWT();
 
       //  const token =await jwt.sign({_id:user._id},"CHRIS$1311",{expiresIn:"1d"});
-       console.log(token)
-       res.cookie("Token",token, { expires: new Date(Date.now() + 900000), httpOnly: true })
+ 
+       res.cookie("Token",token, { expires: new Date(Date.now() + 8*900000), httpOnly: true }) //it woll expire in 8*15 min
        res.send("Login Successful!!");
       }else{
          throw new Error("Invalid credentials!!");
@@ -60,4 +60,11 @@ authRouter.post('/login',async(req,res)=>{
    }
 })
 
-module.exports= authRouter
+authRouter.post('/logout',async(req,res)=>{
+     res.cookie("Token",null,{
+        expires: new Date(Date.now()),
+     })
+     res.send("Logout Successful");
+})
+
+module.exports= authRouter; 

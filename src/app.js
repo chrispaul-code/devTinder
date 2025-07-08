@@ -12,7 +12,7 @@ const requestRouter=require("./routes/request.js");
 
 app.use('/',authRouter);
 app.use('/',profileRouter);
-app.use('/',requestRouter);
+app.use('/',requestRouter); 
 
 
 connectDB()
