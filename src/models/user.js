@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 function capitalizeFirstLetter(value) {
   if (typeof value !== 'string') return value;
@@ -58,6 +60,21 @@ const userSchema= new mongoose.Schema({
     }
 
 },{timestamps:true})
+
+userSchema.methods.getJWT=async function () {
+    const user=this;
+
+    const token =await jwt.sign({_id:user._id},"CHRIS$1311",{expiresIn:"1d"});
+    
+    return token
+}
+
+userSchema.methods.validatePass=async function (passwordByUser) {
+    const user=this;
+    const passwordHash=user.password
+    const validPassword=await bcrypt.compare(passwordByUser,passwordHash)
+    return validPassword
+}
 
 const User =mongoose.model('User',userSchema);
 
