@@ -11,7 +11,7 @@ function capitalizeFirstLetter(value) {
 const userSchema= new mongoose.Schema({
     firstName:{
         type:String,
-        required:true,
+        required:[true,"Fistname is required"],
         trime:true,
         set: capitalizeFirstLetter,
     },

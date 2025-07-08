@@ -4,7 +4,7 @@ const User = require('../models/user');
 const userAuth=async(req,res,next)=>{
 
   try{//read the token from the cookie 
-    const {Token}=req.cookies;
+    const {Token}=req.cookies || req.headers.authorization?.split("Bearer ")[1] ;
 
     if(!Token){
         throw new Error("Token is not valid!!")
