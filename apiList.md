@@ -11,10 +11,10 @@
 - PATCH /profile/password
 
 ## connectioRequestRouter
-- POST /request/semd/intrested/:userId
-- POST /request/semd/ignored/:userId
+- POST /request/send/:intrested/:userId
+- POST /request/send/ignored/:userId
 - POST /request/review/accepted/:requestId
-- POST /request/review/rejected/:requestId
+- POST /request/review/:rejected/:requestId
 
 ## userRoute
 - GET /user/connections
