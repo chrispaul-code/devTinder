@@ -5,11 +5,6 @@ const User=require('../models/user.js')
 
 const requestsRouter=express.Router()
 
-requestsRouter.post("/sendConnectionRequest",userAuth,async(req,res)=>{
-   const user=req.user
-    res.send("Coonection Request Send By :"+ user.firstName)
-})
-
 requestsRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
 
     try{
@@ -52,13 +47,49 @@ requestsRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     const data =await connectionRequest .save();
 
     res.json({
-        message:"Connection Request Sent Successfully!!",
+        message:`${req.user.firstName} ${status} ${toUser.firstName}`,
         data:data
     })
 
     }catch(err){
         res.status(404).send("ERROR: "+ err.message)
     }
+
+})
+
+requestsRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
+  
+    try{
+    const logInUser=req.user;
+    const {status,requestId}=req.params;
+
+    const allowedStatus=["accepted","rejected"];
+
+    if(!allowedStatus.includes(status)){
+        throw new Error("Status is invalid")
+    }
+
+    const connectionReq= await ConnectionRequest.findOne({
+        _id:requestId,
+        toUserId:logInUser._id,
+        status:"interested"
+    })
+
+    if(!connectionReq){
+        throw new Error("Connection req not found")
+    }
+
+    connectionReq.status=status;
+
+    const data = await connectionReq.save()
+
+    res.json({message:"Connection request "+ status,data})
+
+
+    }catch(err){
+        res.status(400).send("ERROR: "+err.message)
+    }
+
 
 })
 

@@ -11,10 +11,13 @@
 - PATCH /profile/password
 
 ## connectioRequestRouter
-- POST /request/send/:intrested/:userId
-- POST /request/send/ignored/:userId
-- POST /request/review/accepted/:requestId
-- POST /request/review/:rejected/:requestId
+
+status-intrested or ignored
+- POST /request/send/:status/:userId 
+
+status- accepted or rejected  
+- POST /request/review/:status/:requestId
+
 
 ## userRoute
 - GET /user/connections
