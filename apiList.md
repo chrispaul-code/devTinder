@@ -19,7 +19,7 @@ status- accepted or rejected
 - POST /request/review/:status/:requestId
 
 
-## userRoute
+## userRoute 
 - GET /user/connections
 - GET /user/requests/received
 - GET /user/feed - Gets you the profiles of other users on platform
