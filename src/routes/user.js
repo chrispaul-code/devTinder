@@ -52,5 +52,30 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
 
     }
 })
+userRouter.get("/user/connections",userAuth,async(req,res)=>{
+    try{
+        const loggedInUser=req.user;
+
+        const connectionReq=await ConnectionRequest.find({
+            $or:[
+                {status:"interested", fromUserId:loggedInUser._id },
+                {status:"interested", toUserId:loggedInUser._id }
+            ]
+        }).populate("fromUserId", ["firstName", "lastName"]).populate("toUserId", ["firstName", "lastName"]);
+
+        const data =connectionReq.map((row)=>{
+            if(row.fromUserId._id.toString() == loggedInUser._id.toString()){
+                return row.toUserId;
+            }
+            return row.fromUserId;
+        });
+
+        res.json({data})
+
+
+    }catch(err){
+
+    }
+})
 
 module.exports=userRouter
