@@ -7,7 +7,7 @@ const userAuth=async(req,res,next)=>{
     const {Token}=req.cookies || req.headers.authorization?.split("Bearer ")[1] ;
 
     if(!Token){
-        throw new Error("Token is not valid!!")
+        return res.status(401).send("Plese Login!!")
     }
 
     // validate the token
