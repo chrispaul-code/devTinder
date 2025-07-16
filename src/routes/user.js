@@ -33,8 +33,8 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
 
         const connectionReq=await ConnectionRequest.find({
             $or:[
-                {status:"interested", fromUserId:loggedInUser._id },
-                {status:"interested", toUserId:loggedInUser._id }
+                {status:"accepted", fromUserId:loggedInUser._id },
+                {status:"accepted", toUserId:loggedInUser._id }
             ]
         }).populate("fromUserId", ["firstName", "lastName"]).populate("toUserId", ["firstName", "lastName"]);
 
@@ -49,33 +49,57 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
 
 
     }catch(err){
-
+        res.status(404).send("ERROR : "+ err.message)
     }
 })
-userRouter.get("/user/connections",userAuth,async(req,res)=>{
-    try{
-        const loggedInUser=req.user;
 
-        const connectionReq=await ConnectionRequest.find({
-            $or:[
-                {status:"interested", fromUserId:loggedInUser._id },
-                {status:"interested", toUserId:loggedInUser._id }
-            ]
-        }).populate("fromUserId", ["firstName", "lastName"]).populate("toUserId", ["firstName", "lastName"]);
+userRouter.get("/feed",userAuth,async(req,res)=>{
+    try {
+      //The user should only see user which they have never send any status 
+      //The user should not see itself
 
-        const data =connectionReq.map((row)=>{
-            if(row.fromUserId._id.toString() == loggedInUser._id.toString()){
-                return row.toUserId;
-            }
-            return row.fromUserId;
-        });
+      //Pagination
 
-        res.json({data})
+      const page= parseInt(req.query.page) || 1;
+      let limit= parseInt(req.query.limit) || 10;
+      
+      limit= limit>50 ? 50 : limit
+
+      const skip=(page-1)*limit;
 
 
-    }catch(err){
+      
+      const loggedInUser=req.user;
 
+      const connectionRequest=await ConnectionRequest.find({
+        $or:[
+            {toUserId:loggedInUser._id},
+            {fromUserId:loggedInUser._id}
+        ]
+      }).select("fromUserId toUserId");
+
+      const hideUserFromFeed=new Set(); //set datastucture which is a array and it has unique  element 
+
+      connectionRequest.forEach(req=>{
+        hideUserFromFeed.add(req.fromUserId.toString());
+        hideUserFromFeed.add(req.toUserId.toString());
+      });
+
+
+      const users= await User.find({
+        $and:[
+            {_id:{$nin: Array.from(hideUserFromFeed)}},
+            {_id:{$ne: loggedInUser._id}},
+        ],
+      }).select("firstName lastName about photoUrl").skip(skip).limit(limit)
+
+     res.json({data:users});
+    
+
+    } catch (err) {
+        res.status(404).send("ERROR: "+ err.message)
     }
 })
+
 
 module.exports=userRouter

@@ -57,3 +57,16 @@ Write code with proper validations for POST /request/review/:status/:requestId
 Thought process - POST vs GET
 Read about ref and populate https://mongoosejs.com/docs/populate.html Create GET /user/requests/received with all the checks
 Create GET GET /user/connections
+
+
+Pagenation
+
+/feet?page=1&limit=10=>first 10 users 1-10    // .skip(0) & .limit(10)
+
+/feet?page=2&limit=10=>first 11 users 11-20   // .skip(10) & .limit(10)
+
+/feet?page=3&limit=10=>first 21 users 21-30   // .skip(20) & .limit(10)
+
+akip=(page-1)*limit
+
+.skip() & .limit()
