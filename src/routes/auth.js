@@ -50,7 +50,7 @@ authRouter.post('/login',async(req,res)=>{
       //  const token =await jwt.sign({_id:user._id},"CHRIS$1311",{expiresIn:"1d"});
  
        res.cookie("Token",token, { expires: new Date(Date.now() + 8*900000), httpOnly: true }) //it woll expire in 8*15 min
-       res.send("Login Successful!!");
+       res.send(user);
       }else{
          throw new Error("Invalid credentials!!");
       }
