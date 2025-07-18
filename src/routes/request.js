@@ -76,14 +76,14 @@ requestsRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)
     })
 
     if(!connectionReq){
-        throw new Error("Connection req not found")
+        throw new Error("Connection req not foundddd")
     }
 
     connectionReq.status=status;
 
     const data = await connectionReq.save()
 
-    res.json({message:"Connection request "+ status,data})
+    res.json({message:"Connection request "+ data})
 
 
     }catch(err){

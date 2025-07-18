@@ -19,7 +19,30 @@ const connectionRequestSchema= new mongoose.Schema({
             values:["ignored","interested","accepted","rejected"],
             message:`{VALUE} is incorrect status type`,
         }
-    }
+    },
+    photoUrl:{
+            type:String,
+            ref:"User",
+            default:"https://s.yimg.com/zb/imgv1/546fa6f9-9774-3712-885d-f715447ae5a2/t_500x300", 
+    }, 
+    about:{
+        type:String,
+        ref:"User",
+        default:"This is a default about of the user !"
+    },
+        age:{
+        type:Number,
+        ref:"User",
+        default:20
+
+    },
+    gender:{
+        type:String,
+        ref:"User",
+        default:"Male"
+
+    },
+     
 },{timestamps:true})
 
 connectionRequestSchema.index({fromUserId:1, toUserId:1})
